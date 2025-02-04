@@ -1,6 +1,6 @@
 name: flutter_things
 description: A set of things you miss in Flutter
-version: 0.0.2
+version: 0.0.1
 
 environment:
   sdk: ^3.5.4
