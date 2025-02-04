@@ -3,17 +3,64 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-class Provider<T> extends InheritedWidget {
-  const Provider({
+sealed class Provider<T> extends InheritedWidget {
+  const Provider._({
+    super.key,
+    required super.child,
+  });
+
+  const factory Provider({
+    Key? key,
+    required Widget child,
+    required T value,
+  }) = _StaticProviderValue<T>;
+
+  const factory Provider.valueGetter({
+    Key? key,
+    required Widget child,
+    required ValueGetter<T> valueGetter,
+    required ValueGetter<String> hashGetter,
+  }) = _ValueGetterProviderValue<T>;
+
+  T get value;
+}
+
+class _ValueGetterProviderValue<T> extends Provider<T> {
+  const _ValueGetterProviderValue({
+    super.key,
+    required super.child,
+    required this.valueGetter,
+    required this.hashGetter,
+  }) : super._();
+
+  /// Will be used in [updateShouldNotify].
+  /// Should represent what's [valueGetter] return.
+  final ValueGetter<String> hashGetter;
+
+  /// Value getter for lazy loading.
+  final ValueGetter<T> valueGetter;
+
+  @override
+  bool updateShouldNotify(_ValueGetterProviderValue oldWidget) {
+    return oldWidget.hashGetter() != hashGetter();
+  }
+
+  @override
+  T get value => valueGetter();
+}
+
+final class _StaticProviderValue<T> extends Provider<T> {
+  const _StaticProviderValue({
     super.key,
     required super.child,
     required this.value,
-  });
+  }) : super._();
 
+  @override
   final T value;
 
   @override
-  bool updateShouldNotify(Provider oldWidget) {
+  bool updateShouldNotify(_StaticProviderValue oldWidget) {
     return oldWidget.value != value;
   }
 }
