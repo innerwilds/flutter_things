@@ -1,3 +1,4 @@
-## 0.0.1
+## 0.2.0
 
-* TODO: Describe initial release.
+Some API is changed.
+ModelProvider with aspect added, an example can be found in test.

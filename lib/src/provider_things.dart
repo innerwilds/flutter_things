@@ -2,8 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:logger/logger.dart';
 
-class Provider<T> extends InheritedWidget {
+final _logger = Logger(
+  printer: SimplePrinter(),
+);
+
+final class Provider<T> extends InheritedWidget {
   const Provider({
     super.key,
     required super.child,
@@ -18,14 +23,38 @@ class Provider<T> extends InheritedWidget {
   }
 }
 
+final class ModelProvider<M, A extends ModelProviderAspect> extends InheritedModel<A> {
+  const ModelProvider({
+    super.key,
+    required this.model,
+    required super.child,
+  });
+
+  final M model;
+
+  @override
+  bool updateShouldNotify(ModelProvider oldWidget) {
+    return oldWidget.model != model;
+  }
+
+  @override
+  bool updateShouldNotifyDependent(ModelProvider<M, A> oldWidget, Set<A> dependencies) {
+    return dependencies.any((aspectGetter) {
+      return aspectGetter.getAspect(oldWidget.model) != aspectGetter.getAspect(model);
+    });
+  }
+}
+
+abstract mixin class ModelProviderAspect<M> {
+  dynamic getAspect(M object);
+}
+
 class ValueListenableProvider<T> extends StatelessWidget {
-  ValueListenableProvider({
+  const ValueListenableProvider({
     super.key,
     required this.notifier,
     required this.child,
-  }) {
-    print("ValueListenableProvider is used for notifier ${notifier.hashCode}");
-  }
+  });
 
   final ValueListenable<T> notifier;
   final Widget child;
@@ -34,7 +63,6 @@ class ValueListenableProvider<T> extends StatelessWidget {
   Widget build(BuildContext context) => ValueListenableBuilder(
     valueListenable: notifier,
     builder: (context, value, child) {
-      print("ValueListenableBuilder: $T just changed");
       return Provider<T>(
         value: value,
         child: child!,
@@ -93,26 +121,105 @@ class _ValueStreamProviderState<T> extends State<ValueStreamProvider<T>> {
 }
 
 extension WatchReadContext on BuildContext {
-  T watch<T>() {
-    final inherited = dependOnInheritedWidgetOfExactType<Provider<T>>();
+  /// Watches a [T] provided by [Provider].
+  ///
+  /// Throws if [T] can't be found.
+  T watchProvided<T>() {
+    final inherited =
+      dependOnInheritedWidgetOfExactType<Provider<T>>() ??
+      dependOnInheritedWidgetOfExactType<ModelProvider<T, dynamic>>();
 
-    print("Watching for $T...");
+    _logger.i("Watching for $T...");
 
-    assert(inherited != null, "Can't find Provider<$T> ancestor");
-
-    return inherited!.value;
+    return switch (inherited) {
+      Provider<T>(value: final value) => value,
+      ModelProvider<T, dynamic>(model: final model) => model,
+      _ => throw UnimplementedError("Can't find Provider<$T> ancestor"),
+    };
   }
 
-  T read<T>() {
-    var inherited = findAncestorWidgetOfExactType<Provider<T>>()?.value;
+  /// Reads a [T] provided by [Provider].
+  ///
+  /// Throws if [T] can't be found.
+  T readProvided<T>() {
+    final inherited =
+      findAncestorWidgetOfExactType<Provider<T>>() ??
+      findAncestorWidgetOfExactType<ModelProvider<T, dynamic>>();
 
-    assert(inherited != null, "Can't find Provider<$T> ancestor");
+    _logger.i("Reading for $T...");
 
-    return inherited!;
+    return switch (inherited) {
+      Provider<T>(value: final value) => value,
+      ModelProvider<T, dynamic>(model: final model) => model,
+      _ => throw UnimplementedError("Can't find Provider<$T> ancestor"),
+    };
   }
 
-  T? readOrNull<T>() {
-    final inherited = findAncestorWidgetOfExactType<Provider<T>>();
-    return inherited?.value;
+  /// Reads a [T] provided by [Provider].
+  ///
+  /// Returns null if [T] can't be found.
+  T? readOrNullProvided<T>() {
+    final inherited =
+      findAncestorWidgetOfExactType<Provider<T>>() ??
+      findAncestorWidgetOfExactType<ModelProvider<T, dynamic>>();
+
+    _logger.i("Reading for $T...");
+
+    return switch (inherited) {
+      Provider<T>(value: final value) => value,
+      ModelProvider<T, dynamic>(model: final model) => model,
+      _ => null,
+    };
+  }
+}
+
+extension WatchReadAspectContext on BuildContext {
+  /// Watches an aspect of [M] provided by [ModelProvider].
+  /// 
+  /// Throws if [M] can't be found.
+  /// 
+  /// All type arguments are required.
+  E watchProvidedAspect<M, A extends ModelProviderAspect<M>, E>(A aspect) {
+    final inherited = dependOnInheritedWidgetOfExactType<ModelProvider<M, A>>(
+      aspect: aspect,
+    );
+
+    _logger.i("Watching for aspect $A on model $M");
+
+    assert(inherited != null, "Can't find ModelProvider<$M, $A> ancestor");
+
+    return aspect.getAspect(inherited!.model);
+  }
+
+  /// Reads an aspect of [M] provided by [ModelProvider].
+  /// 
+  /// Throws if [M] can't be found.
+  /// 
+  /// All type arguments are required.
+  E readProvidedAspect<M, A extends ModelProviderAspect<M>,  E>(A aspect) {
+    final inherited = findAncestorWidgetOfExactType<ModelProvider<M, A>>();
+
+    _logger.i("Reading for aspect $aspect on model $M");
+
+    assert(inherited != null, "Can't find ModelProvider<$M, $A> ancestor");
+
+    return aspect.getAspect(inherited!.model);
+  }
+
+  /// Reads an aspect of [M] provided by [ModelProvider].
+  /// 
+  /// Returns null if [M] can't be found or aspect is null.
+  /// 
+  /// All type arguments are required.
+  E? readProvidedAspectOrNull<M, A extends ModelProviderAspect<M>, E>(A aspect) {
+    final inherited = findAncestorWidgetOfExactType<ModelProvider<M, A>>();
+
+    _logger.i("Reading for aspect $A on model $M");
+
+    if (inherited == null) {
+      return null;
+    }
+
+    return aspect.getAspect(inherited.model);
   }
 }
