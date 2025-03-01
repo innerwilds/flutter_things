@@ -1,14 +1,14 @@
 import 'package:flutter/rendering.dart';
 
-final numberRegex = RegExp(r'[+-]?(\d*\.\d+|\d+\.?\d*)([eE][+-]?\d+)?');
-final notACommand = RegExp(r'[^a-zA-Z]');
+final _numberRegex = RegExp(r'[+-]?(\d*\.\d+|\d+\.?\d*)([eE][+-]?\d+)?');
+final _notACommand = RegExp(r'[^a-zA-Z]');
 final _cache = <int, List<void Function(Path)>>{};
 
 List<void Function(Path)> _parsePath(String path) {
   final set = <void Function(Path)>[];
 
   double takeNumber() {
-    final match = numberRegex.matchAsPrefix(path);
+    final match = _numberRegex.matchAsPrefix(path);
     assert(match != null);
     final number = path.substring(0, match!.end);
     path = path.substring(match.end).trimLeft();
@@ -24,7 +24,7 @@ List<void Function(Path)> _parsePath(String path) {
       case 'M':
       case 'm':
         final isRelative = command == 's';
-        while (path.startsWith(notACommand)) {
+        while (path.startsWith(_notACommand)) {
           final x = takeNumber();
           final y = takeNumber();
           if (isRelative) {
@@ -41,7 +41,7 @@ List<void Function(Path)> _parsePath(String path) {
       case 's':
       case 'S':
         final isRelative = command == 's';
-        while (path.startsWith(notACommand)) {
+        while (path.startsWith(_notACommand)) {
           final x1 = takeNumber();
           final y1 = takeNumber();
           final x2 = takeNumber();
@@ -71,7 +71,7 @@ List<void Function(Path)> _parsePath(String path) {
       case 'C':
       case 'c':
         final isRelative = command == 'c';
-        while (path.startsWith(notACommand)) {
+        while (path.startsWith(_notACommand)) {
           final x1 = takeNumber();
           final y1 = takeNumber();
           final x2 = takeNumber();
@@ -106,7 +106,7 @@ List<void Function(Path)> _parsePath(String path) {
       case 'A':
       case 'a':
         final isRelative = command == 'a';
-        while (path.startsWith(notACommand)) {
+        while (path.startsWith(_notACommand)) {
           final rx = takeNumber();
           final ry = takeNumber();
           var rotation = takeNumber();

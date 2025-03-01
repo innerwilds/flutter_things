@@ -12,3 +12,4 @@ export 'src/flutter_things.dart';
 export 'src/provider_things.dart';
 export 'src/runtime_things.dart';
 export 'src/static_page_route.dart';
+export 'src/rendering/svg_path_clipper.dart';
