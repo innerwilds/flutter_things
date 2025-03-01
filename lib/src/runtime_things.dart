@@ -27,16 +27,8 @@ abstract final class RuntimePlatform {
   }
 
   static FutureOr<void> _initializeAndroidType() async {
-    if (_androidType != null) {
+    if (_androidType != null || !Platform.isAndroid) {
       return;
-    }
-
-    if (defaultTargetPlatform != TargetPlatform.android) {
-      throw StateError('Target platform is not an android');
-    }
-
-    if (!Platform.isAndroid) {
-      throw StateError('Runtime platform is not an android');
     }
 
     final androidInfo = await DeviceInfoPlugin().androidInfo;

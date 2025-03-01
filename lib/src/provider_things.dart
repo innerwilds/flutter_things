@@ -33,7 +33,7 @@ final class ModelProvider<M, A extends ModelProviderAspect> extends InheritedMod
   final M model;
 
   @override
-  bool updateShouldNotify(ModelProvider oldWidget) {
+  bool updateShouldNotify(ModelProvider<M, A> oldWidget) {
     return oldWidget.model != model;
   }
 
@@ -184,7 +184,7 @@ extension WatchReadAspectContext on BuildContext {
       aspect: aspect,
     );
 
-    _logger.i("Watching for aspect $A on model $M");
+    _logger.i("Watching for aspect $aspect on model $M");
 
     assert(inherited != null, "Can't find ModelProvider<$M, $A> ancestor");
 
