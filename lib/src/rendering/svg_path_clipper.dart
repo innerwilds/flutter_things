@@ -2,7 +2,7 @@ import 'package:flutter/rendering.dart';
 
 final _numberRegex = RegExp(r'[+-]?(\d*\.\d+|\d+\.?\d*)([eE][+-]?\d+)?');
 final _notACommand = RegExp(r'[^a-zA-Z]');
-final _cache = <int, List<void Function(Path)>>{};
+final _cache = <Object, List<void Function(Path)>>{};
 
 List<void Function(Path)> _parsePath(String path) {
   final set = <void Function(Path)>[];
@@ -16,7 +16,6 @@ List<void Function(Path)> _parsePath(String path) {
   }
 
   while (path.isNotEmpty) {
-
     final command = path.substring(0, 1);
     path = path.substring(1);
 
@@ -49,21 +48,11 @@ List<void Function(Path)> _parsePath(String path) {
 
           if (isRelative) {
             set.add((path) {
-              path.relativeQuadraticBezierTo(
-                x1,
-                y1,
-                x2,
-                y2,
-              );
+              path.relativeQuadraticBezierTo(x1, y1, x2, y2);
             });
           } else {
             set.add((path) {
-              path.quadraticBezierTo(
-                x1,
-                y1,
-                x2,
-                y2,
-              );
+              path.quadraticBezierTo(x1, y1, x2, y2);
             });
           }
         }
@@ -80,25 +69,11 @@ List<void Function(Path)> _parsePath(String path) {
           final y3 = takeNumber();
           if (isRelative) {
             set.add((path) {
-              path.relativeCubicTo(
-                x1,
-                y1,
-                x2,
-                y2,
-                x3,
-                y3,
-              );
+              path.relativeCubicTo(x1, y1, x2, y2, x3, y3);
             });
           } else {
             set.add((path) {
-              path.cubicTo(
-                x1,
-                y1,
-                x2,
-                y2,
-                x3,
-                y3,
-              );
+              path.cubicTo(x1, y1, x2, y2, x3, y3);
             });
           }
         }
@@ -119,19 +94,23 @@ List<void Function(Path)> _parsePath(String path) {
 
           if (isRelative) {
             set.add((path) {
-              path.relativeArcToPoint(Offset(x, y),
+              path.relativeArcToPoint(
+                Offset(x, y),
                 radius: Radius.elliptical(rx, ry),
                 rotation: rotation,
                 largeArc: largeArc,
-                clockwise: sweepFlag);
+                clockwise: sweepFlag,
+              );
             });
           } else {
             set.add((path) {
-              path.arcToPoint(Offset(x, y),
-                  radius: Radius.elliptical(rx, ry),
-                  rotation: rotation,
-                  largeArc: largeArc,
-                  clockwise: sweepFlag);
+              path.arcToPoint(
+                Offset(x, y),
+                radius: Radius.elliptical(rx, ry),
+                rotation: rotation,
+                largeArc: largeArc,
+                clockwise: sweepFlag,
+              );
             });
           }
         }
@@ -149,40 +128,63 @@ List<void Function(Path)> _parsePath(String path) {
 }
 
 List<void Function(Path)> _parsePathAndCache(String path) {
-  return _cache[path.hashCode] ??= _parsePath(path);
+  return _cache[_cacheKey(path)] ??= _parsePath(path);
 }
 
+void _evictCache(String path) => _cache.remove(_cacheKey(path));
+
+Object _cacheKey(String path) => path.hashCode;
+
+/// Path clipper based on https://www.w3.org/TR/SVG2/paths.html#PathData.
+/// Not stable.
 class SvgPathClipper extends CustomClipper<Path> {
-  SvgPathClipper(this.originalSize, String path, {
-    this.flip = false,
+  /// Main ctor.
+  ///
+  /// [originalSize] here is a bound in which path was drawn.
+  ///
+  /// Using [flipX] you can flip it horizontally.
+  /// Using [flipY] you can flip it horizontally.
+  ///
+  /// A [path] is SVG path as in 'd' attribute of 'path' element.
+  /// It will be parsed in an instructions set and cached for future usage.
+  /// To clean that cache, use [SvgPathClipper.evictCache].
+  SvgPathClipper(
+    this.originalSize,
+    String path, {
+    this.flipX = false,
+    this.flipY = false,
   }) : instructionSet = _parsePathAndCache(path);
 
   final Size originalSize;
-  final bool flip;
+  final bool flipX;
+  final bool flipY;
   final List<void Function(Path)> instructionSet;
+
+  static void evictCache(String path) => _evictCache(path);
 
   @override
   Path getClip(Size size) {
     final pathObj = Path();
 
-    for (var apply in instructionSet) {
+    for (final apply in instructionSet) {
       apply(pathObj);
     }
 
     final scaleX = size.width / originalSize.width;
     final scaleY = size.height / originalSize.height;
 
-    final matrix = Matrix4.identity()
-      ..scale(flip ? -scaleX : scaleX, scaleY);
+    final matrix =
+        Matrix4.identity()
+          ..scale(flipX ? -scaleX : scaleX, flipY ? -scaleY : scaleY);
 
     return pathObj.transform(matrix.storage);
   }
 
   @override
   bool shouldReclip(SvgPathClipper oldClipper) {
-    return
-      instructionSet != oldClipper.instructionSet ||
-      originalSize != oldClipper.originalSize ||
-      flip != oldClipper.flip;
+    return instructionSet != oldClipper.instructionSet ||
+        originalSize != oldClipper.originalSize ||
+        flipY != oldClipper.flipY ||
+        flipX != oldClipper.flipX;
   }
 }

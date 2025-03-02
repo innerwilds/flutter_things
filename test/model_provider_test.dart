@@ -11,7 +11,7 @@ void main() {
           model: const MyModel(false, 0, ''),
           child: Builder(
             builder: (context) {
-              final foo = MyModelAspect.fooOf(context);
+              final foo = MyModelAspect.maybeFooOf(context);
               return Text('foo:$foo');
             },
           ),
@@ -35,7 +35,7 @@ enum MyModelAspect implements ModelProviderAspect<MyModel> {
   bar(),
   zed();
 
-  static bool fooOf(BuildContext context) => context.readProvidedAspect<MyModel, MyModelAspect, bool>(MyModelAspect.foo);
+  static bool? maybeFooOf(BuildContext context) => context.readProvidedAspect<MyModel, MyModelAspect, bool>(MyModelAspect.foo);
 
   @override
   dynamic getAspect(MyModel object) => switch(this) {
