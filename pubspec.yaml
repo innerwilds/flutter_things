@@ -1,7 +1,7 @@
 name: flutter_things
 description: A set of things for Flutter
 version: 0.3.1
-git: https://github.com/innerwilds/flutter_things
+repository: https://github.com/innerwilds/flutter_things
 
 environment:
   sdk: ^3.7.0
