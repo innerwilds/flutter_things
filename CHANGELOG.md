@@ -10,3 +10,8 @@ ModelProvider with aspect added, an example can be found in test.
 
 Some API was changed.
 Something was added.
+
+## 0.4.1
+
+Some API was changed.
+Something was added.
