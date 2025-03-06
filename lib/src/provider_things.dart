@@ -14,21 +14,33 @@ final class Provider<T> extends InheritedWidget {
   }
 }
 
-final class ModelProvider<M, A extends ModelProviderAspect<M>>
-    extends InheritedModel<A> {
-  const ModelProvider({super.key, required this.model, required super.child});
+/// Model provider, based on [ModelProviderAspect] of [M].
+///
+/// Use only with [WatchReadAspectContext.watchProvidedAspect] and
+/// [WatchReadContext.watchProvided].
+final class ModelProvider<M> extends InheritedModel<ModelProviderAspect<M, dynamic>> {
+  const ModelProvider({
+    super.key,
+    required this.model,
+    required super.child,
+    bool Function(ModelProvider<M> oldWidget)? updateShouldNotify,
+  }) : _customUpdateShouldNotify = updateShouldNotify;
 
   final M model;
+  final bool Function(ModelProvider<M> oldWidget)? _customUpdateShouldNotify;
 
   @override
-  bool updateShouldNotify(covariant ModelProvider<M, A> oldWidget) {
+  bool updateShouldNotify(covariant ModelProvider<M> oldWidget) {
+    if (_customUpdateShouldNotify != null) {
+      return _customUpdateShouldNotify(oldWidget);
+    }
     return oldWidget.model != model;
   }
 
   @override
   bool updateShouldNotifyDependent(
-    covariant ModelProvider<M, A> oldWidget,
-    Set<A> dependencies,
+    covariant ModelProvider<M> oldWidget,
+    Set<ModelProviderAspect<M, dynamic>> dependencies,
   ) {
     return dependencies.any((aspectGetter) {
       return aspectGetter.getAspect(oldWidget.model) !=
@@ -37,8 +49,18 @@ final class ModelProvider<M, A extends ModelProviderAspect<M>>
   }
 }
 
-abstract mixin class ModelProviderAspect<M> {
-  dynamic getAspect(M object);
+abstract mixin class ModelProviderAspect<M, V> {
+  factory ModelProviderAspect.fromHandler(V Function(M object) getAspect) = _FromHandlerModelProviderAspect<M, V>;
+  V getAspect(M object);
+}
+
+final class _FromHandlerModelProviderAspect<M, V> implements ModelProviderAspect<M, V> {
+  _FromHandlerModelProviderAspect(V Function(M object) getAspect) : _getAspect = getAspect;
+
+  final V Function(M object) _getAspect;
+
+  @override
+  V getAspect(M object) => _getAspect(object);
 }
 
 class ValueListenableProvider<T> extends StatelessWidget {
@@ -110,30 +132,48 @@ class _ValueStreamProviderState<T> extends State<ValueStreamProvider<T>> {
 extension WatchReadContext on BuildContext {
   /// Watches a [T] provided by [Provider] or [ModelProvider].
   ///
+  /// If [require] is true, it will include assert to check for non-null [T].
+  ///
   /// Throws if [T] can't be found.
-  T? watchProvided<T>() {
+  T? watchProvided<T>({bool require = false}) {
     final inherited =
         dependOnInheritedWidgetOfExactType<Provider<T>>() ??
-        dependOnInheritedWidgetOfExactType<ModelProvider<T, dynamic>>();
+        dependOnInheritedWidgetOfExactType<ModelProvider<T>>();
+
+    assert(() {
+      if (require) {
+        assert(inherited != null, 'No $T was found in context.');
+      }
+      return true;
+    }());
 
     return switch (inherited) {
       Provider<T>(value: final value) => value,
-      ModelProvider<T, dynamic>(model: final model) => model,
+      ModelProvider<T>(model: final model) => model,
       _ => null,
     };
   }
 
   /// Reads a [T] provided by [Provider] or [ModelProvider].
   ///
+  /// If [require] is true, it will include assert to check for non-null [T].
+  ///
   /// Throws if [T] can't be found.
-  T? readProvided<T>() {
+  T? readProvided<T>({bool require = false}) {
     final inherited =
         findAncestorWidgetOfExactType<Provider<T>>() ??
-        findAncestorWidgetOfExactType<ModelProvider<T, dynamic>>();
+        findAncestorWidgetOfExactType<ModelProvider<T>>();
+
+    assert(() {
+      if (require) {
+        assert(inherited != null, 'No $T was found in context.');
+      }
+      return true;
+    }());
 
     return switch (inherited) {
       Provider<T>(value: final value) => value,
-      ModelProvider<T, dynamic>(model: final model) => model,
+      ModelProvider<T>(model: final model) => model,
       _ => null,
     };
   }
@@ -144,29 +184,55 @@ extension WatchReadContext on BuildContext {
 extension WatchReadAspectContext on BuildContext {
   /// Watches an aspect of [M] provided by [ModelProvider].
   ///
-  /// Throws if [M] can't be found.
+  /// If [require] is true, it will include assert to check for non-null [M].
   ///
   /// All type arguments are required.
-  E? watchProvidedAspect<M, A extends ModelProviderAspect<M>, E>(A aspect) {
-    final inherited = dependOnInheritedWidgetOfExactType<ModelProvider<M, A>>(
+  V? watchProvidedAspect<M, V>(
+      ModelProviderAspect<M, V> aspect, {
+    bool require = false,
+  }) {
+    final inherited = dependOnInheritedWidgetOfExactType<ModelProvider<M>>(
       aspect: aspect,
     );
 
+    assert(() {
+      if (require) {
+        assert(
+          inherited != null,
+          'No $M found in context to get an aspect of $aspect from it.',
+        );
+      }
+      return true;
+    }());
+
     if (inherited == null) return null;
 
-    return aspect.getAspect(inherited.model) as E;
+    return aspect.getAspect(inherited.model);
   }
 
   /// Reads an aspect of [M] provided by [ModelProvider].
   ///
-  /// Throws if [M] can't be found.
+  /// If [require] is true, it will include assert to check for non-null [M].
   ///
   /// All type arguments are required.
-  E? readProvidedAspect<M, A extends ModelProviderAspect<M>, E>(A aspect) {
-    final inherited = findAncestorWidgetOfExactType<ModelProvider<M, A>>();
+  V? readProvidedAspect<M, V>(
+    ModelProviderAspect<M, V> aspect, {
+    bool require = false,
+  }) {
+    final inherited = findAncestorWidgetOfExactType<ModelProvider<M>>();
+
+    assert(() {
+      if (require) {
+        assert(
+          inherited != null,
+          'No $M found in context to get an aspect of $aspect from it.',
+        );
+      }
+      return true;
+    }());
 
     if (inherited == null) return null;
 
-    return aspect.getAspect(inherited.model) as E;
+    return aspect.getAspect(inherited.model);
   }
 }

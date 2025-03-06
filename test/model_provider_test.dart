@@ -5,21 +5,25 @@ import 'package:flutter_things/src/provider_things.dart';
 void main() {
   testWidgets('Can read ModelProvider aspect', (tester) async {
     // Build an App with a Text widget that displays the letter 'H'.
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: ModelProvider<MyModel, MyModelAspect>(
-          model: const MyModel(false, 0, ''),
-          child: Builder(
-            builder: (context) {
-              final foo = MyModelAspect.maybeFooOf(context);
-              return Text('foo:$foo');
-            },
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ModelProvider<MyModel>(
+            model: const MyModel(false, 0, ''),
+            child: Builder(
+              builder: (context) {
+                final foo = MyModelAspect.maybeFooOf(context);
+                final modelItself =
+                    context.watchProvided<MyModel>(require: true)!;
+                return Text('foo:$foo:foo:${modelItself.bar}');
+              },
+            ),
           ),
         ),
       ),
-    ));
+    );
 
-    expect(find.text('foo:false'), findsOneWidget);
+    expect(find.text('foo:false:foo:0'), findsOneWidget);
   });
 }
 
@@ -30,17 +34,18 @@ class MyModel {
   final String zed;
 }
 
-enum MyModelAspect implements ModelProviderAspect<MyModel> {
-  foo(),
-  bar(),
-  zed();
+enum MyModelAspect<T> implements ModelProviderAspect<MyModel, T> {
+  foo<bool>(),
+  bar<int>(),
+  zed<String>();
 
-  static bool? maybeFooOf(BuildContext context) => context.readProvidedAspect<MyModel, MyModelAspect, bool>(MyModelAspect.foo);
+  static bool? maybeFooOf(BuildContext context) => context
+      .readProvidedAspect<MyModel, bool>(MyModelAspect.foo);
 
   @override
-  dynamic getAspect(MyModel object) => switch(this) {
+  T getAspect(MyModel object) => switch (this) {
     MyModelAspect.foo => object.foo,
     MyModelAspect.bar => object.bar,
     MyModelAspect.zed => object.zed,
-  };
+  } as T;
 }
