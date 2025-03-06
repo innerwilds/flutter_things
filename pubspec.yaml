@@ -10,10 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # For RuntimePlatform.
   device_info_plus: ^11.1.1
-  dart_things:
-    git: https://github.com/innerwilds/dart_things
+  dart_things: ^0.5.1
 
 dev_dependencies:
   flutter_test:
