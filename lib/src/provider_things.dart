@@ -18,7 +18,8 @@ final class Provider<T> extends InheritedWidget {
 ///
 /// Use only with [WatchReadAspectContext.watchProvidedAspect] and
 /// [WatchReadContext.watchProvided].
-final class ModelProvider<M> extends InheritedModel<ModelProviderAspect<M, dynamic>> {
+final class ModelProvider<M>
+    extends InheritedModel<ModelProviderAspect<M, dynamic>> {
   const ModelProvider({
     super.key,
     required this.model,
@@ -50,12 +51,15 @@ final class ModelProvider<M> extends InheritedModel<ModelProviderAspect<M, dynam
 }
 
 abstract mixin class ModelProviderAspect<M, V> {
-  factory ModelProviderAspect.fromHandler(V Function(M object) getAspect) = _FromHandlerModelProviderAspect<M, V>;
+  factory ModelProviderAspect.fromHandler(V Function(M object) getAspect) =
+      _FromHandlerModelProviderAspect<M, V>;
   V getAspect(M object);
 }
 
-final class _FromHandlerModelProviderAspect<M, V> implements ModelProviderAspect<M, V> {
-  _FromHandlerModelProviderAspect(V Function(M object) getAspect) : _getAspect = getAspect;
+final class _FromHandlerModelProviderAspect<M, V>
+    implements ModelProviderAspect<M, V> {
+  _FromHandlerModelProviderAspect(V Function(M object) getAspect)
+    : _getAspect = getAspect;
 
   final V Function(M object) _getAspect;
 
@@ -188,7 +192,7 @@ extension WatchReadAspectContext on BuildContext {
   ///
   /// All type arguments are required.
   V? watchProvidedAspect<M, V>(
-      ModelProviderAspect<M, V> aspect, {
+    ModelProviderAspect<M, V> aspect, {
     bool require = false,
   }) {
     final inherited = dependOnInheritedWidgetOfExactType<ModelProvider<M>>(

@@ -1,6 +1,6 @@
 name: flutter_things
 description: A set of things for Flutter
-version: 0.4.1
+version: 0.4.2
 repository: https://github.com/innerwilds/flutter_things
 
 environment:
@@ -11,7 +11,6 @@ dependencies:
   flutter:
     sdk: flutter
   device_info_plus: ^11.1.1
-  dart_things: ^0.5.1
 
 dev_dependencies:
   flutter_test:
