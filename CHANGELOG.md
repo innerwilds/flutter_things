@@ -15,3 +15,7 @@ Something was added.
 
 Some API was changed.
 Something was added.
+
+## 0.4.2
+
+dart_things removed from deps.
