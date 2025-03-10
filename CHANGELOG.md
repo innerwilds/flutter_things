@@ -19,3 +19,7 @@ Something was added.
 ## 0.4.2
 
 dart_things removed from deps.
+
+## 0.5.0
+dart_things added to deps.
+API changed.
