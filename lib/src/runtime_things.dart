@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as io show Brightness, DisplayFeature;
 
+import 'package:dart_things/dart_things.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/gestures.dart' as gestures show DeviceGestureSettings;
-import 'package:flutter/widgets.dart' as wid;
+import 'package:flutter/widgets.dart';
 
 /// Android device types.
 enum AndroidType {
@@ -15,49 +16,60 @@ enum AndroidType {
   tv,
 }
 
-/// Provides runtime detection of a specific platform.
-///
-/// Currently it is created only for recognizing Android TV based OSes.
-/// In this case it will check for leanback feature. If you need more, use
-/// something else.
-abstract final class RuntimePlatform {
-  static AndroidType? _androidType;
+final class _RuntimePlatform extends RuntimePlatform with Initializer {
+  late final AndroidType androidType;
 
-  static bool get isAndroidTV => androidType == AndroidType.tv;
-
-  /// Initializes [RuntimePlatform]. Must be called as earlier as possible
-  /// and after [WidgetsFlutterBinding.ensureInitialized].
-  static FutureOr<void> initialize() async {
-    await _initializeAndroidType();
-  }
-
-  static FutureOr<void> _initializeAndroidType() async {
-    if (_androidType != null || !Platform.isAndroid) {
+  FutureOr<void> _initializeAndroidType() async {
+    if (!Platform.isAndroid) {
       return;
     }
 
     final androidInfo = await DeviceInfoPlugin().androidInfo;
-    final isTV = androidInfo.systemFeatures.contains(
+    final hasLeanback = androidInfo.systemFeatures.contains(
       'android.software.leanback',
     );
 
-    _androidType = isTV ? AndroidType.tv : AndroidType.mobile;
+    androidType = hasLeanback ? AndroidType.tv : AndroidType.mobile;
   }
 
-  /// Gets [AndroidType] of runtime platform.
-  static AndroidType get androidType {
-    if (_androidType != null) {
-      return _androidType!;
-    }
-    throw StateError(
-      'To use PlatformExtension you must once call '
-      'PlatformExtension.initialize(), before using it.',
-    );
+  @override
+  Future<void> initialize() async {
+    await _initializeAndroidType();
+    super.initialize();
   }
 }
 
-/// Useful things for a [wid.State].
-extension ColiseumState<T extends wid.StatefulWidget> on wid.State<T> {
+/// Provides runtime detection of a specific platform.
+abstract class RuntimePlatform {
+  /// Whether current platform is an Android TV.
+  ///
+  /// Detection is based on whether leanback feature is present.
+  bool get isAndroidTV => androidType == AndroidType.tv;
+
+  abstract final AndroidType androidType;
+
+  static _RuntimePlatform? _instance;
+  static RuntimePlatform get instance {
+    if (_instance == null) {
+      throw FlutterError(
+        'Call RuntimePlatform.ensureInitialized() before using it.',
+      );
+    }
+    return _instance!;
+  }
+
+  /// Initializes [RuntimePlatform]. Must be called after
+  /// [WidgetsFlutterBinding.ensureInitialized].
+  static Future<void> ensureInitialized() async {
+    if (_instance == null) {
+      _instance = _RuntimePlatform();
+      await _instance!.ensureInitialized();
+    }
+  }
+}
+
+/// Useful things for a [State].
+extension ColiseumState<T extends StatefulWidget> on State<T> {
   /// sets state if this [State] is mounted.
   ///
   /// Use with safety.
@@ -70,43 +82,43 @@ extension ColiseumState<T extends wid.StatefulWidget> on wid.State<T> {
   }
 }
 
-/// Provides read-only [wid.MediaQuery] things.
+/// Provides read-only [MediaQuery] things.
 abstract final class MediaQueryReadOnly {
-  wid.MediaQueryData? of(wid.BuildContext context) {
-    return context.findAncestorWidgetOfExactType<wid.MediaQuery>()?.data;
+  static MediaQueryData? of(BuildContext context) {
+    return context.findAncestorWidgetOfExactType<MediaQuery>()?.data;
   }
 
-  wid.Size? sizeOf(wid.BuildContext context) => of(context)?.size;
-  double? devicePixelRatioOf(wid.BuildContext context) =>
+  static Size? sizeOf(BuildContext context) => of(context)?.size;
+  static double? devicePixelRatioOf(BuildContext context) =>
       of(context)?.devicePixelRatio;
-  wid.TextScaler? textScalerOf(wid.BuildContext context) =>
+  static TextScaler? textScalerOf(BuildContext context) =>
       of(context)?.textScaler;
-  io.Brightness? platformBrightnessOf(wid.BuildContext context) =>
+  static io.Brightness? platformBrightnessOf(BuildContext context) =>
       of(context)?.platformBrightness;
-  wid.EdgeInsets? paddingOf(wid.BuildContext context) => of(context)?.padding;
-  wid.EdgeInsets? viewPaddingOf(wid.BuildContext context) =>
+  static EdgeInsets? paddingOf(BuildContext context) => of(context)?.padding;
+  static EdgeInsets? viewPaddingOf(BuildContext context) =>
       of(context)?.viewPadding;
-  wid.EdgeInsets? viewInsetsOf(wid.BuildContext context) =>
+  static EdgeInsets? viewInsetsOf(BuildContext context) =>
       of(context)?.viewInsets;
-  wid.EdgeInsets? systemGestureInsetsOf(wid.BuildContext context) =>
+  static EdgeInsets? systemGestureInsetsOf(BuildContext context) =>
       of(context)?.systemGestureInsets;
-  bool? alwaysUse24HourFormatOf(wid.BuildContext context) =>
+  static bool? alwaysUse24HourFormatOf(BuildContext context) =>
       of(context)?.alwaysUse24HourFormat;
-  bool? highContrastOf(wid.BuildContext context) => of(context)?.highContrast;
-  bool? onOffSwitchLabelsOf(wid.BuildContext context) =>
+  static bool? highContrastOf(BuildContext context) => of(context)?.highContrast;
+  static bool? onOffSwitchLabelsOf(BuildContext context) =>
       of(context)?.onOffSwitchLabels;
-  bool? disableAnimationsOf(wid.BuildContext context) =>
+  static bool? disableAnimationsOf(BuildContext context) =>
       of(context)?.disableAnimations;
-  bool? invertColorsOf(wid.BuildContext context) => of(context)?.invertColors;
-  bool? accessibleNavigationOf(wid.BuildContext context) =>
+  static bool? invertColorsOf(BuildContext context) => of(context)?.invertColors;
+  static bool? accessibleNavigationOf(BuildContext context) =>
       of(context)?.accessibleNavigation;
-  bool? boldTextOf(wid.BuildContext context) => of(context)?.boldText;
-  wid.NavigationMode? navigationModeOf(wid.BuildContext context) =>
+  static bool? boldTextOf(BuildContext context) => of(context)?.boldText;
+  static NavigationMode? navigationModeOf(BuildContext context) =>
       of(context)?.navigationMode;
-  gestures.DeviceGestureSettings? gestureSettingsOf(wid.BuildContext context) =>
+  static gestures.DeviceGestureSettings? gestureSettingsOf(BuildContext context) =>
       of(context)?.gestureSettings;
-  List<io.DisplayFeature>? displayFeaturesOf(wid.BuildContext context) =>
+  static List<io.DisplayFeature>? displayFeaturesOf(BuildContext context) =>
       of(context)?.displayFeatures;
-  bool? supportsShowingSystemContextMenuOf(wid.BuildContext context) =>
+  static bool? supportsShowingSystemContextMenuOf(BuildContext context) =>
       of(context)?.supportsShowingSystemContextMenu;
 }
