@@ -180,15 +180,3 @@ void clearApp() => runApp(const SizedBox.shrink());
 //   }
 //   widgets.runApp(app);
 // }
-
-/// Theme contrast.
-enum ThemeContrast {
-  /// Normal contrast.
-  normal,
-
-  /// Medium contrast.
-  medium,
-
-  /// High contrast.
-  high,
-}
