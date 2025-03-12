@@ -23,3 +23,7 @@ dart_things removed from deps.
 ## 0.5.0
 dart_things added to deps.
 API changed.
+
+## 0.6.0
+No more custom runApp.
+ThemeContrast added.
