@@ -74,44 +74,8 @@ class HorzGap extends SingleChildRenderObjectWidget {
   }
 }
 
-/// Represents vertical space on top of child.
-/// Use instead of Padding(
-///   padding: EdgeInsets.only(top: value),
-///   child: ...,
-/// )
-class TopIndent extends SingleChildRenderObjectWidget {
-  /// Creates a widget that insets its child.
-  const TopIndent(
-      this.size, {
-        super.key,
-        super.child,
-      });
-
-  /// The amount of space by which to inset the child.
-  final double size;
-
-  @override
-  RenderPadding createRenderObject(BuildContext context) {
-    return RenderPadding(
-      padding: EdgeInsets.only(top: size),
-      textDirection: Directionality.maybeOf(context),
-    );
-  }
-
-  @override
-  void updateRenderObject(BuildContext context, RenderPadding renderObject) {
-    renderObject
-      ..padding = EdgeInsets.only(top: size)
-      ..textDirection = Directionality.maybeOf(context);
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(DoubleProperty('size', size));
-  }
-}
-
+/// Clears currently running app. All widgets will be
+/// removed from the tree.
 void clearApp() => runApp(const SizedBox.shrink());
 
 // class _RanAppListener {
