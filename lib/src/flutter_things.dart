@@ -1,6 +1,5 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter/widgets.dart' as widgets show runApp;
 
 /// Represents vertical space.
 /// Use instead of Padding(
@@ -73,24 +72,3 @@ class HorzGap extends SingleChildRenderObjectWidget {
     properties.add(DoubleProperty('size', size));
   }
 }
-
-/// Clears currently running app. All widgets will be
-/// removed from the tree.
-void clearApp() => runApp(const SizedBox.shrink());
-
-// class _RanAppListener {
-//   const _RanAppListener(this.onStop);
-//
-//   final Future<void> Function() onStop;
-// }
-
-// WeakReference<_RanAppListener>? _ranAppListener;
-
-// Future<void> runApp(Widget app, [Future<void> Function()? onInflateOther]) async {
-//   await _ranAppListener?.target?.onStop();
-//   _ranAppListener = null;
-//   if (onInflateOther != null) {
-//     _ranAppListener = WeakReference(_RanAppListener(onInflateOther));
-//   }
-//   widgets.runApp(app);
-// }
