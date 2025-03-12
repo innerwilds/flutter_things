@@ -27,3 +27,6 @@ API changed.
 ## 0.6.0
 No more custom runApp.
 ThemeContrast added.
+
+## 0.6.1
+ThreeStateAppRunner was added.
