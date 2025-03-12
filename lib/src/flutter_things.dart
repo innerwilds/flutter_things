@@ -1,5 +1,5 @@
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart' hide runApp;
+import 'package:flutter/widgets.dart';
 import 'package:flutter/widgets.dart' as widgets show runApp;
 
 /// Represents vertical space.
@@ -164,44 +164,31 @@ class TransformAnimation<T, C> implements Animation<T> {
 
 void clearApp() => runApp(const SizedBox.shrink());
 
-class _RanAppListener {
-  const _RanAppListener(this.onStop);
+// class _RanAppListener {
+//   const _RanAppListener(this.onStop);
+//
+//   final Future<void> Function() onStop;
+// }
 
-  final Future<void> Function() onStop;
-}
+// WeakReference<_RanAppListener>? _ranAppListener;
 
-WeakReference<_RanAppListener>? _ranAppListener;
+// Future<void> runApp(Widget app, [Future<void> Function()? onInflateOther]) async {
+//   await _ranAppListener?.target?.onStop();
+//   _ranAppListener = null;
+//   if (onInflateOther != null) {
+//     _ranAppListener = WeakReference(_RanAppListener(onInflateOther));
+//   }
+//   widgets.runApp(app);
+// }
 
-Future<void> runApp(Widget app, [Future<void> Function()? onInflateOther]) async {
-  await _ranAppListener?.target?.onStop();
-  _ranAppListener = null;
-  if (onInflateOther != null) {
-    _ranAppListener = WeakReference(_RanAppListener(onInflateOther));
-  }
-  widgets.runApp(app);
-}
+/// Theme contrast.
+enum ThemeContrast {
+  /// Normal contrast.
+  normal,
 
-@immutable
-class SaveData {
-  const SaveData({
-    required this.saved,
-  });
+  /// Medium contrast.
+  medium,
 
-  final bool saved;
-
-  SaveData copyWith({ bool? saved }) => SaveData(saved: saved ?? this.saved);
-}
-
-class SaveController extends ValueNotifier<SaveData> {
-  SaveController() : super(const SaveData(saved: false));
-
-  bool get saved => value.saved;
-
-  void hasChanges() {
-    value = value.copyWith(saved: false);
-  }
-
-  void save() {
-    value = value.copyWith(saved: true);
-  }
+  /// High contrast.
+  high,
 }
