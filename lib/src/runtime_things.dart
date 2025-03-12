@@ -87,7 +87,6 @@ abstract final class MediaQueryReadOnly {
   static MediaQueryData? of(BuildContext context) {
     return context.findAncestorWidgetOfExactType<MediaQuery>()?.data;
   }
-
   static Size? sizeOf(BuildContext context) => of(context)?.size;
   static double? devicePixelRatioOf(BuildContext context) =>
       of(context)?.devicePixelRatio;
