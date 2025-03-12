@@ -30,3 +30,7 @@ ThemeContrast added.
 
 ## 0.6.1
 ThreeStateAppRunner was added.
+
+## 0.6.2
+ItemSelectionController was added.
+ValueAspectListenableBuilder was added.
