@@ -112,56 +112,6 @@ class TopIndent extends SingleChildRenderObjectWidget {
   }
 }
 
-
-class TransformAnimation<T, C> implements Animation<T> {
-  const TransformAnimation(this._base, {
-    required this.transform,
-  });
-
-  final Animation<C> _base;
-  final T Function(C) transform;
-
-  @override
-  void addListener(VoidCallback listener) => _base.addListener(listener);
-
-  @override
-  void addStatusListener(AnimationStatusListener listener) => _base.addStatusListener(listener);
-
-  @override
-  Animation<U> drive<U>(Animatable<U> child) => _base.drive(child);
-
-  @override
-  bool get isAnimating => _base.isAnimating;
-
-  @override
-  bool get isCompleted => _base.isCompleted;
-
-  @override
-  bool get isDismissed => _base.isDismissed;
-
-  @override
-  bool get isForwardOrCompleted => _base.isForwardOrCompleted;
-
-  @override
-  void removeListener(VoidCallback listener) {
-    _base.removeListener(listener);
-  }
-
-  @override
-  void removeStatusListener(AnimationStatusListener listener) {
-    _base.removeStatusListener(listener);
-  }
-
-  @override
-  AnimationStatus get status => _base.status;
-
-  @override
-  String toStringDetails() => _base.toStringDetails();
-
-  @override
-  T get value => transform(_base.value);
-}
-
 void clearApp() => runApp(const SizedBox.shrink());
 
 // class _RanAppListener {
