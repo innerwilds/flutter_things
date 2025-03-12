@@ -40,7 +40,7 @@ class VertGap extends SingleChildRenderObjectWidget {
 
 /// Represents vertical space.
 /// Use instead of Padding(
-///   padding: EdgeInsets.only(top: value)
+///   padding: EdgeInsets.only(left: value)
 /// )
 class HorzGap extends SingleChildRenderObjectWidget {
   /// Creates a widget that insets its child.
