@@ -4,11 +4,15 @@ import 'dart:ui' as io show Brightness, DisplayFeature;
 
 import 'package:dart_things/dart_things.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart' as gestures show DeviceGestureSettings;
 import 'package:flutter/widgets.dart';
 
 /// Android device types.
 enum AndroidType {
+  /// Device is not android.
+  none,
+
   /// Android mobile device
   mobile,
 
@@ -17,19 +21,31 @@ enum AndroidType {
 }
 
 final class _RuntimePlatform extends RuntimePlatform with Initializer {
-  late final AndroidType androidType;
+  AndroidType? _androidType;
+  AndroidType get androidType {
+    assert(
+      _androidType != null,
+      'RuntimePlatform needs to be initialized before using androidType.',
+    );
+    return _androidType!;
+  }
 
   FutureOr<void> _initializeAndroidType() async {
-    if (!Platform.isAndroid) {
-      return;
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      if (kDebugMode) {
+        debugPrint('Checking androidType in RuntimePlatform...');
+      }
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+      final hasLeanback = androidInfo.systemFeatures.contains(
+        'android.software.leanback',
+      );
+      _androidType = hasLeanback ? AndroidType.tv : AndroidType.mobile;
+      if (kDebugMode) {
+        debugPrint('androidType set to $_androidType in RuntimePlatform.');
+      }
+    } else {
+      _androidType = AndroidType.none;
     }
-
-    final androidInfo = await DeviceInfoPlugin().androidInfo;
-    final hasLeanback = androidInfo.systemFeatures.contains(
-      'android.software.leanback',
-    );
-
-    androidType = hasLeanback ? AndroidType.tv : AndroidType.mobile;
   }
 
   @override
@@ -87,6 +103,7 @@ abstract final class MediaQueryReadOnly {
   static MediaQueryData? of(BuildContext context) {
     return context.findAncestorWidgetOfExactType<MediaQuery>()?.data;
   }
+
   static Size? sizeOf(BuildContext context) => of(context)?.size;
   static double? devicePixelRatioOf(BuildContext context) =>
       of(context)?.devicePixelRatio;
@@ -103,19 +120,22 @@ abstract final class MediaQueryReadOnly {
       of(context)?.systemGestureInsets;
   static bool? alwaysUse24HourFormatOf(BuildContext context) =>
       of(context)?.alwaysUse24HourFormat;
-  static bool? highContrastOf(BuildContext context) => of(context)?.highContrast;
+  static bool? highContrastOf(BuildContext context) =>
+      of(context)?.highContrast;
   static bool? onOffSwitchLabelsOf(BuildContext context) =>
       of(context)?.onOffSwitchLabels;
   static bool? disableAnimationsOf(BuildContext context) =>
       of(context)?.disableAnimations;
-  static bool? invertColorsOf(BuildContext context) => of(context)?.invertColors;
+  static bool? invertColorsOf(BuildContext context) =>
+      of(context)?.invertColors;
   static bool? accessibleNavigationOf(BuildContext context) =>
       of(context)?.accessibleNavigation;
   static bool? boldTextOf(BuildContext context) => of(context)?.boldText;
   static NavigationMode? navigationModeOf(BuildContext context) =>
       of(context)?.navigationMode;
-  static gestures.DeviceGestureSettings? gestureSettingsOf(BuildContext context) =>
-      of(context)?.gestureSettings;
+  static gestures.DeviceGestureSettings? gestureSettingsOf(
+    BuildContext context,
+  ) => of(context)?.gestureSettings;
   static List<io.DisplayFeature>? displayFeaturesOf(BuildContext context) =>
       of(context)?.displayFeatures;
   static bool? supportsShowingSystemContextMenuOf(BuildContext context) =>
