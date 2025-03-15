@@ -13,7 +13,7 @@ class ItemSelectionController<K> extends ValueNotifier<Set<K>> {
   ItemSelectionController({Set<K>? initial}) : super(initial ?? const {});
   
   /// Whether [key] is in selection.
-  bool isSelected(int key) => value.contains(key);
+  bool isSelected(K key) => value.contains(key);
   
   /// Adds [key] to selection.
   void select(K key) {

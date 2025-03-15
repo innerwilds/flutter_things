@@ -37,3 +37,6 @@ ValueAspectListenableBuilder was added.
 
 ## 0.6.3
 RuntimePlatform fix.
+
+## 0.6.4
+ItemSelectionController fix.
