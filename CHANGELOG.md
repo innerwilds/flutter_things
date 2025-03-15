@@ -34,3 +34,6 @@ ThreeStateAppRunner was added.
 ## 0.6.2
 ItemSelectionController was added.
 ValueAspectListenableBuilder was added.
+
+## 0.6.3
+RuntimePlatform fix.
