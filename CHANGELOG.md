@@ -40,3 +40,11 @@ RuntimePlatform fix.
 
 ## 0.6.4
 ItemSelectionController fix.
+
+## 0.6.5
+ItemSelectionController:
+fixes,
+new methods,
+tests.
+
+other refactoring.
