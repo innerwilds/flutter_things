@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui' as io show Brightness, DisplayFeature;
 
 import 'package:dart_things/dart_things.dart';
