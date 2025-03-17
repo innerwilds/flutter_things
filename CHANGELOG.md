@@ -48,3 +48,8 @@ new methods,
 tests.
 
 other refactoring.
+
+## 0.6.6
+SvgPathClipper small fix.
+Added clarification on which path commands it supports (parsePath doc comment).
+parsePath now exposed. Read the doc comment on it.
