@@ -1,23 +1,49 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 
-final _numberRegex = RegExp(r'[+-]?(\d*\.\d+|\d+\.?\d*)([eE][+-]?\d+)?');
-final _notACommand = RegExp(r'[^a-zA-Z]');
+const _number = r'[+-]?(?:\d*\.\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?';
+final _numberRegex = RegExp(_number);
+final _notACommand = RegExp('[^a-zA-Z]');
 final _cache = <Object, List<void Function(Path)>>{};
 
-List<void Function(Path)> _parsePath(String path) {
+/// Simple SVG path g attribute parser, it only supports: mM, sS, cC, aA, zZ.
+///
+/// It will give you instruction set to apply to a [Path].
+///
+/// It is intended to use with simple figures that can be drawn using only above
+/// commands.
+@visibleForTesting
+List<void Function(Path)> parsePath(String pathToParse) {
   final set = <void Function(Path)>[];
+
+  var path = pathToParse;
+
+  void maySkipComma() {
+    if (path.startsWith(',')) {
+      path = path.substring(1);
+    }
+  }
+
+  void trimLeft() {
+    path = path.trimLeft();
+  }
 
   double takeNumber() {
     final match = _numberRegex.matchAsPrefix(path);
     assert(match != null);
     final number = path.substring(0, match!.end);
-    path = path.substring(match.end).trimLeft();
+    path = path.substring(match.end);
+    trimLeft();
+    maySkipComma();
+    trimLeft();
     return double.parse(number);
   }
 
+  path = path.trim();
+
   while (path.isNotEmpty) {
     final command = path.substring(0, 1);
-    path = path.substring(1);
+    path = path.substring(1).trimLeft();
 
     switch (command) {
       case 'M':
@@ -128,7 +154,7 @@ List<void Function(Path)> _parsePath(String path) {
 }
 
 List<void Function(Path)> _parsePathAndCache(String path) {
-  return _cache[_cacheKey(path)] ??= _parsePath(path);
+  return _cache[_cacheKey(path)] ??= parsePath(path);
 }
 
 void _evictCache(String path) => _cache.remove(_cacheKey(path));
