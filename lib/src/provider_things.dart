@@ -52,14 +52,14 @@ final class ModelProvider<M>
 
 abstract mixin class ModelProviderAspect<M, V> {
   factory ModelProviderAspect.fromHandler(V Function(M object) getAspect) =
-      _FromHandlerModelProviderAspect<M, V>;
+  _FromHandlerModelProviderAspect<M, V>;
   V getAspect(M object);
 }
 
 final class _FromHandlerModelProviderAspect<M, V>
     implements ModelProviderAspect<M, V> {
   _FromHandlerModelProviderAspect(V Function(M object) getAspect)
-    : _getAspect = getAspect;
+      : _getAspect = getAspect;
 
   final V Function(M object) _getAspect;
 
@@ -191,8 +191,8 @@ extension WatchReadAspectContext on BuildContext {
   /// If [require] is true, it will include assert to check for non-null [M].
   ///
   /// All type arguments are required.
-  V? watchProvidedAspect<M, V>(
-    ModelProviderAspect<M, V> aspect, {
+  V? watchProvidedAspect<A extends ModelProviderAspect<M, V>, M, V>(
+    A aspect, {
     bool require = false,
   }) {
     final inherited = dependOnInheritedWidgetOfExactType<ModelProvider<M>>(
@@ -219,8 +219,8 @@ extension WatchReadAspectContext on BuildContext {
   /// If [require] is true, it will include assert to check for non-null [M].
   ///
   /// All type arguments are required.
-  V? readProvidedAspect<M, V>(
-    ModelProviderAspect<M, V> aspect, {
+  V? readProvidedAspect<A extends ModelProviderAspect<M, V>, M, V>(
+    A aspect, {
     bool require = false,
   }) {
     final inherited = findAncestorWidgetOfExactType<ModelProvider<M>>();
