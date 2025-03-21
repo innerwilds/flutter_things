@@ -53,3 +53,7 @@ other refactoring.
 SvgPathClipper small fix.
 Added clarification on which path commands it supports (parsePath doc comment).
 parsePath now exposed. Read the doc comment on it.
+
+## 0.7.0
+watchProvidedAspect and readProvidedAspect now accepts A as aspect,
+which is ModelProviderAspect<M, V>. So there is now 3 type arguments: A, M, V.
