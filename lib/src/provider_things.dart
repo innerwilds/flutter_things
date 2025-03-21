@@ -191,10 +191,10 @@ extension WatchReadAspectContext on BuildContext {
   /// If [require] is true, it will include assert to check for non-null [M].
   ///
   /// All type arguments are required.
-  V? watchProvidedAspect<A extends ModelProviderAspect<M, V>, M, V>(
-    A aspect, {
-    bool require = false,
-  }) {
+  V? watchProvidedAspect<A extends ModelProviderAspect<M, V?>, M, V>(
+      A aspect, {
+        bool require = false,
+      }) {
     final inherited = dependOnInheritedWidgetOfExactType<ModelProvider<M>>(
       aspect: aspect,
     );
@@ -202,8 +202,8 @@ extension WatchReadAspectContext on BuildContext {
     assert(() {
       if (require) {
         assert(
-          inherited != null,
-          'No $M found in context to get an aspect of $aspect from it.',
+        inherited != null,
+        'No $M found in context to get an aspect of $aspect from it.',
         );
       }
       return true;
@@ -219,7 +219,7 @@ extension WatchReadAspectContext on BuildContext {
   /// If [require] is true, it will include assert to check for non-null [M].
   ///
   /// All type arguments are required.
-  V? readProvidedAspect<A extends ModelProviderAspect<M, V>, M, V>(
+  V? readProvidedAspect<A extends ModelProviderAspect<M, V?>, M, V>(
     A aspect, {
     bool require = false,
   }) {

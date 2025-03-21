@@ -9,14 +9,13 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: ModelProvider<MyModel>(
-            model: const MyModel(false, 0, 'asd'),
+            model: const MyModel(false, null, 'asd'),
             child: Builder(
               builder: (context) {
                 final foo = MyModelAspect.readFooOf(context);
                 final zed = MyModelAspect.watchZedOf(context);
-                final modelItself =
-                    context.watchProvided<MyModel>(require: true)!;
-                return Text('zed:$zed:foo:$foo:foo:${modelItself.bar}');
+                final bar = MyModelAspect.watchBarOf(context);
+                return Text('zed:$zed:foo:$foo:bar:$bar');
               },
             ),
           ),
@@ -24,24 +23,27 @@ void main() {
       ),
     );
 
-    expect(find.text('zed:asd:foo:false:foo:0'), findsOneWidget);
+    expect(find.text('zed:asd:foo:false:bar:null'), findsOneWidget);
   });
 }
 
 class MyModel {
   const MyModel(this.foo, this.bar, this.zed);
   final bool foo;
-  final int bar;
+  final int? bar;
   final String zed;
 }
 
 enum MyModelAspect<T> implements ModelProviderAspect<MyModel, T> {
   foo<bool>(),
-  bar<int>(),
+  bar<int?>(),
   zed<String>();
 
   static bool? readFooOf(BuildContext context) =>
       context.readProvidedAspect(MyModelAspect.foo);
+
+  static int? watchBarOf(BuildContext context) =>
+      context.watchProvidedAspect(MyModelAspect.bar);
 
   static String? watchZedOf(BuildContext context) =>
       context.watchProvidedAspect(MyModelAspect.zed);
