@@ -65,3 +65,6 @@ which is ModelProviderAspect<M, V?>. So there is now 3 type arguments: A, M, V.
 ## 0.8.1
 lerpString was added.
 dart_things dep now requires >=0.9.0.
+
+## 0.9.0
+Contrast level API changed.
