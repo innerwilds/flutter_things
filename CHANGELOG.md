@@ -61,3 +61,7 @@ which is ModelProviderAspect<M, V>. So there is now 3 type arguments: A, M, V.
 ## 0.8.0
 watchProvidedAspect and readProvidedAspect now accepts A as aspect,
 which is ModelProviderAspect<M, V?>. So there is now 3 type arguments: A, M, V.
+
+## 0.8.1
+lerpString was added.
+dart_things dep now requires >=0.9.0.
