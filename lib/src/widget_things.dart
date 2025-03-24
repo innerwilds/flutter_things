@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 /// Provides preferred [ContrastLevel] to use for your
@@ -47,13 +48,42 @@ class Contrast extends InheritedWidget {
 }
 
 /// Contrast level.
-enum ContrastLevel {
-  /// Normal contrast.
-  normal,
+@immutable
+class ContrastLevel {
+  /// Lowest contrast.
+  static const lowest = ContrastLevel(-1);
 
-  /// Medium contrast.
-  medium,
+  /// Low contrast.
+  static const low = ContrastLevel(-.5);
+
+  /// Normal contrast.
+  static const normal = ContrastLevel(0);
 
   /// High contrast.
-  high,
+  static const high = ContrastLevel(.5);
+
+  /// Highest contrast.
+  static const highest = ContrastLevel(1);
+
+  /// Default static values.
+  static const values = [
+    lowest,
+    low,
+    normal,
+    high,
+    highest,
+  ];
+
+  const ContrastLevel(this.value);
+
+  /// Contrast level value.
+  final double value;
+
+  @override
+  bool operator ==(Object other) {
+    return other is ContrastLevel && other.value == value;
+  }
+
+  @override
+  int get hashCode => value.hashCode;
 }
