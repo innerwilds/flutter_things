@@ -1,6 +1,7 @@
 /// Contains useful things for flutter.
 library;
 
+export 'src/dart_things.dart';
 export 'src/flutter_things.dart';
 export 'src/foundation_things.dart';
 export 'src/provider_things.dart';

@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:dart_things/dart_things.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_things/flutter_things.dart';
 
-final class Provider<T> extends InheritedWidget {
+final class Provider<T> extends InheritedWidget with DiagnosticableTreeMixin {
   const Provider({super.key, required super.child, required this.value});
 
   final T value;
@@ -52,14 +54,14 @@ final class ModelProvider<M>
 
 abstract mixin class ModelProviderAspect<M, V> {
   factory ModelProviderAspect.fromHandler(V Function(M object) getAspect) =
-  _FromHandlerModelProviderAspect<M, V>;
+      _FromHandlerModelProviderAspect<M, V>;
   V getAspect(M object);
 }
 
 final class _FromHandlerModelProviderAspect<M, V>
     implements ModelProviderAspect<M, V> {
   _FromHandlerModelProviderAspect(V Function(M object) getAspect)
-      : _getAspect = getAspect;
+    : _getAspect = getAspect;
 
   final V Function(M object) _getAspect;
 
@@ -192,9 +194,9 @@ extension WatchReadAspectContext on BuildContext {
   ///
   /// All type arguments are required.
   V? watchProvidedAspect<A extends ModelProviderAspect<M, V?>, M, V>(
-      A aspect, {
-        bool require = false,
-      }) {
+    A aspect, {
+    bool require = false,
+  }) {
     final inherited = dependOnInheritedWidgetOfExactType<ModelProvider<M>>(
       aspect: aspect,
     );
@@ -202,8 +204,8 @@ extension WatchReadAspectContext on BuildContext {
     assert(() {
       if (require) {
         assert(
-        inherited != null,
-        'No $M found in context to get an aspect of $aspect from it.',
+          inherited != null,
+          'No $M found in context to get an aspect of $aspect from it.',
         );
       }
       return true;

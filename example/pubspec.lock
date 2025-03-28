@@ -54,7 +54,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "42abe29c85a46683e0679f76b2b2cb5deba8e9ad"
+      resolved-ref: "1eeb656b55411ac81797bef654f6613a4a2b5ede"
       url: "https://github.com/innerwilds/dart_things"
     source: git
     version: "0.9.1"
